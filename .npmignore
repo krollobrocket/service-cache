@@ -1,0 +1,17 @@
+# source
+/src/
+test
+
+# misc
+package-lock.json
+tsconfig.json
+tsconfig.build.json
+.prettierrc
+.release-it.json
+.eslintignore
+.eslintrc.js
+.env
+.gitignore
+
+# github
+.github
