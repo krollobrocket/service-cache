@@ -17,7 +17,7 @@
     ".": "./dist/src/index.js"
   },
   "engines": {
-    "node": ">=15 <21"
+    "node": ">=16 <21"
   },
   "repository": {
     "type": "git",
