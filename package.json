@@ -25,6 +25,7 @@
     "build": "rimraf -rf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
+    "prebuild": "cp scripts/pre-commit .git/hooks/ && chmod +x .git/hooks/pre-commit",
     "prepublish:npm": "npm run build",
     "publish:npm": "npm publish --access public",
     "publish:npm:test": "npm publish --access public --dry-run",

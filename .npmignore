@@ -1,6 +1,7 @@
 # source
 /src/
 test
+scripts
 
 # misc
 package-lock.json
