@@ -12,6 +12,8 @@ tsconfig.build.json
 .eslintrc.js
 .env
 .gitignore
+*.tsbuildinfo
+*.js.map
 
 # github
 .github
