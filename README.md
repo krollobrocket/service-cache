@@ -16,3 +16,10 @@ npm install @cyclonecode/service-cache
             // return response from external api.
         }
     }
+
+## Configuration
+
+The package is using `dotenv` to access environment variables; you can change the default cache key and ttl using:
+
+    CACHE_KEY=defaultCacheKey
+    CACHE_TTL=5000
