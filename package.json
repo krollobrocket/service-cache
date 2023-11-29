@@ -16,6 +16,9 @@
   "exports": {
     ".": "./dist/src/index.js"
   },
+  "engines": {
+    "node": ">=15 <21"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/krollobrocket/service-cache.git"
