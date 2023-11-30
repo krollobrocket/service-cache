@@ -6,14 +6,35 @@ This package adds support to cache return values from service calls in nodejs.
 
 npm install @cyclonecode/service-cache
 
-## Usage
+## Cache method return value
 
     import { ServiceCache } from 'service-cache'
 
     class MyService {
-        @ServiceCache({ key: 'fooBar', ttl: 60 * 1000 })
+        @ServiceCache()
+        // @ServiceCache({ key: 'myKey' })
+        // @ServiceCache({ ttl: 60000 })
+        // @ServiceCache(( key: 'myKey', ttl: 6000 })
         fetchFromApi() {
             // return response from external api.
+        }
+    }
+
+## Cache all method return values in a class
+
+    import { ServiceCache } from 'service-cache'
+
+    @ServiceCache()
+    // @ServiceCache({ key: 'myKey' })
+    // @ServiceCache({ ttl: 60000 })
+    // @ServiceCache(( key: 'myKey', ttl: 6000 })
+    class MyService {
+        fetchFromTwitter() {
+            // return response from twitter api.
+        }
+
+        fetchFromInstagram() {
+            // return response from instagram.
         }
     }
 

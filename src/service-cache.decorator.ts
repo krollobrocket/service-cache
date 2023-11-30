@@ -17,15 +17,27 @@ export interface ServiceCacheOptions {
   ttl?: number;
 }
 
-export function ServiceCache(options?: ServiceCacheOptions) {
-  return function (
-    target: Record<string, any>,
-    propertyKey: string,
+function isConstructor(obj: any) {
+  return !!obj.prototype && !!obj.prototype.constructor.name;
+}
+
+function cacheDecorator(
+  options?: ServiceCacheOptions,
+): (methodName: string, descriptor: PropertyDescriptor) => PropertyDescriptor {
+  const { key, ttl } = Object.assign(
+    {
+      key: DEFAULT_CACHE_KEY,
+      ttl: DEFAULT_CACHE_TTL,
+    },
+    options,
+  );
+  return (
+    methodName: string,
     descriptor: PropertyDescriptor,
-  ) {
-    const { key = DEFAULT_CACHE_KEY, ttl = DEFAULT_CACHE_TTL } = options;
+  ): PropertyDescriptor => {
     const method = descriptor.value;
-    descriptor.value = async function (...args: any[]): Promise<any> {
+
+    descriptor.value = async function (...args: any[]) {
       const cacheKey = key + '-' + md5(JSON.stringify(args));
       let result = cache.get(cacheKey);
       if (!result) {
@@ -37,5 +49,30 @@ export function ServiceCache(options?: ServiceCacheOptions) {
 
       return result;
     };
+
+    return descriptor;
+  };
+}
+
+export function ServiceCache(options?: ServiceCacheOptions) {
+  return function (
+    target: Record<string, any>,
+    propertyName?: string,
+    propertyDescriptor?: PropertyDescriptor,
+  ): void | TypedPropertyDescriptor<any> | any {
+    if (!propertyName) {
+      for (const key of Object.getOwnPropertyNames(target.prototype)) {
+        let descriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
+        if (descriptor && !isConstructor(descriptor.value)) {
+          descriptor = cacheDecorator(options)(key, descriptor);
+          Object.defineProperty(target.prototype, key, descriptor);
+        }
+      }
+    } else {
+      propertyDescriptor.value = cacheDecorator(options)(
+        propertyName,
+        propertyDescriptor,
+      ).value;
+    }
   };
 }
