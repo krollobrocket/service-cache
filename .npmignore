@@ -4,6 +4,7 @@ test
 scripts
 
 # misc
+coverage
 package-lock.json
 tsconfig.json
 tsconfig.build.json

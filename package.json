@@ -24,15 +24,16 @@
     "url": "git+https://github.com/krollobrocket/service-cache.git"
   },
   "scripts": {
-    "clean": "rm -rf ./dist",
-    "build": "rimraf -rf dist && tsc -p tsconfig.build.json",
+    "clean": "rimraf -rf ./dist",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "prebuild": "cp scripts/pre-commit .git/hooks/ && chmod +x .git/hooks/pre-commit",
     "prepublish:npm": "npm run build",
     "publish:npm": "npm publish --access public",
-    "publish:npm:test": "npm publish --access public --dry-run",
-    "test": "jest --config ./test/jest.json"
+    "publish:npm:dry": "npm run publish:npm -- --dry-run",
+    "test": "jest --config ./test/jest.json",
+    "coverage": "npm run test -- --coverage"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
