@@ -1,4 +1,9 @@
-import { MockServiceFoo, MockServiceBar } from './MockService';
+import {
+  MockServiceFoo,
+  MockServiceBar,
+  MockServiceWithArgs,
+} from './MockService';
+import { cache, createCacheKey } from '../src/service-cache.decorator';
 
 describe('Test service cache decorator', () => {
   let mockServiceFoo: MockServiceFoo;
@@ -7,6 +12,7 @@ describe('Test service cache decorator', () => {
   beforeEach(() => {
     mockServiceFoo = new MockServiceFoo();
     mockServiceBar = new MockServiceBar();
+    cache.clear();
   });
 
   async function sleep(ms: number) {
@@ -40,5 +46,30 @@ describe('Test service cache decorator', () => {
       secondResult = await mockServiceBar[method]('foo');
       expect(firstResult).not.toEqual(secondResult);
     }
+  });
+  it('Test so decorator arguments are set', async () => {
+    const mockServiceWithArg = new MockServiceWithArgs();
+    await mockServiceWithArg.fetch();
+    const cacheKey = createCacheKey(MockServiceWithArgs.CACHE_KEY, []);
+    expect(cache.get(cacheKey)).not.toBeUndefined();
+    const cacheEntries = cache.dump();
+    const cacheEntry = cacheEntries
+      .filter(
+        (entry) =>
+          entry[0] === cacheKey &&
+          entry[1].ttl === MockServiceWithArgs.CACHE_TTL,
+      )
+      .pop();
+    expect(cacheEntry).not.toBeUndefined();
+    expect(cacheEntry).not.toBeNull();
+    expect(cacheEntry[0]).toEqual(cacheKey);
+    expect(cacheEntry[1].ttl).toEqual(MockServiceWithArgs.CACHE_TTL);
+  });
+  it('Test so invalid key returns null', async () => {
+    const mockServiceWithArg = new MockServiceWithArgs();
+    await mockServiceWithArg.fetch();
+    const cacheKey = 'nonExistingKey';
+    expect(cache.get(cacheKey)).toBeUndefined();
+    expect(cache.size).toEqual(1);
   });
 });

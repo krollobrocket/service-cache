@@ -37,3 +37,15 @@ export class MockServiceBar {
     };
   }
 }
+
+export class MockServiceWithArgs {
+  static CACHE_KEY = 'myKey';
+  static CACHE_TTL = 3000;
+  @ServiceCache({
+    key: MockServiceWithArgs.CACHE_KEY,
+    ttl: MockServiceWithArgs.CACHE_TTL,
+  })
+  async fetch() {
+    return [];
+  }
+}

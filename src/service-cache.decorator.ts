@@ -6,7 +6,7 @@ dotenv.config();
 const DEFAULT_CACHE_KEY = process.env.CACHE_KEY || 'serviceCache';
 const DEFAULT_CACHE_TTL = parseInt(process.env.CACHE_TTL, 10) || 60 * 30 * 1000;
 
-const cache = new LRUCache({
+export const cache = new LRUCache({
   // How long to live in milliseconds.
   ttl: DEFAULT_CACHE_TTL,
   ttlAutopurge: true,
@@ -17,13 +17,16 @@ export interface ServiceCacheOptions {
   ttl?: number;
 }
 
-function isConstructor(obj: any) {
+export const isConstructor = (obj: any): boolean => {
   return !!obj.prototype && !!obj.prototype.constructor.name;
-}
+};
 
-function cacheDecorator(
-  options?: ServiceCacheOptions,
-): (methodName: string, descriptor: PropertyDescriptor) => PropertyDescriptor {
+export const createCacheKey = (key: string, ...args: [any]) =>
+  key + '-' + md5(JSON.stringify(args));
+
+type ServiceDescriptor = (descriptor: PropertyDescriptor) => PropertyDescriptor;
+
+function cacheDecorator(options?: ServiceCacheOptions): ServiceDescriptor {
   const { key, ttl } = Object.assign(
     {
       key: DEFAULT_CACHE_KEY,
@@ -31,14 +34,11 @@ function cacheDecorator(
     },
     options,
   );
-  return (
-    methodName: string,
-    descriptor: PropertyDescriptor,
-  ): PropertyDescriptor => {
+  return (descriptor) => {
     const method = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
-      const cacheKey = key + '-' + md5(JSON.stringify(args));
+    descriptor.value = async (...args: any[]) => {
+      const cacheKey = createCacheKey(key, args);
       let result = cache.get(cacheKey);
       if (!result) {
         result = await method.apply(this, args);
@@ -54,25 +54,29 @@ function cacheDecorator(
   };
 }
 
-export function ServiceCache(options?: ServiceCacheOptions) {
-  return function (
+type ServiceMethod = (
+  target: Record<string, any>,
+  propertyName?: string,
+  propertyDescriptor?: PropertyDescriptor,
+) => void;
+
+export function ServiceCache(options?: ServiceCacheOptions): ServiceMethod {
+  return (
     target: Record<string, any>,
     propertyName?: string,
     propertyDescriptor?: PropertyDescriptor,
-  ): void | TypedPropertyDescriptor<any> | any {
+  ) => {
     if (!propertyName) {
       for (const key of Object.getOwnPropertyNames(target.prototype)) {
         let descriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
         if (descriptor && !isConstructor(descriptor.value)) {
-          descriptor = cacheDecorator(options)(key, descriptor);
+          descriptor = cacheDecorator(options)(descriptor);
           Object.defineProperty(target.prototype, key, descriptor);
         }
       }
     } else {
-      propertyDescriptor.value = cacheDecorator(options)(
-        propertyName,
-        propertyDescriptor,
-      ).value;
+      propertyDescriptor.value =
+        cacheDecorator(options)(propertyDescriptor).value;
     }
   };
 }
