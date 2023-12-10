@@ -47,13 +47,31 @@ describe('Test service cache decorator', () => {
       expect(firstResult).not.toEqual(secondResult);
     }
   });
+  it('Test so cache key equals', async () => {
+    const cacheKeyEntry =
+      MockServiceWithArgs.CACHE_KEY + '-c676ed1d3bec334e54b7133560eb6275';
+    const cacheKey = createCacheKey(MockServiceWithArgs.CACHE_KEY, []);
+    expect(cacheKey).not.toBeUndefined();
+    expect(cacheKey).not.toBeNull();
+    expect(cacheKey).toEqual(cacheKeyEntry);
+  });
+  it('Test so cache key not equals', async () => {
+    const cacheKeyEntry =
+      MockServiceWithArgs.CACHE_KEY + '-c676ed1d3bec334e54b7133560eb6275';
+    const cacheKey = createCacheKey(MockServiceWithArgs.CACHE_KEY, [
+      'foo',
+      'bar',
+    ]);
+    expect(cacheKey).not.toBeUndefined();
+    expect(cacheKey).not.toBeNull();
+    expect(cacheKey).not.toEqual(cacheKeyEntry);
+  });
   it('Test so decorator arguments are set', async () => {
     const mockServiceWithArg = new MockServiceWithArgs();
     await mockServiceWithArg.fetch();
     const cacheKey = createCacheKey(MockServiceWithArgs.CACHE_KEY, []);
-    expect(cache.get(cacheKey)).not.toBeUndefined();
-    const cacheEntries = cache.dump();
-    const cacheEntry = cacheEntries
+    const cacheEntry = cache
+      .dump()
       .filter(
         (entry) =>
           entry[0] === cacheKey &&
