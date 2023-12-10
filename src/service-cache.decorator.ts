@@ -18,7 +18,7 @@ export interface ServiceCacheOptions {
 }
 
 export const isConstructor = (obj: any): boolean => {
-  return !!obj.prototype && !!obj.prototype.constructor.name;
+  return !!obj?.prototype?.constructor.name;
 };
 
 export const createCacheKey = (key: string, ...args: [any]) =>
@@ -69,6 +69,7 @@ export function ServiceCache(options?: ServiceCacheOptions): ServiceMethod {
     if (!propertyName) {
       for (const key of Object.getOwnPropertyNames(target.prototype)) {
         let descriptor = Object.getOwnPropertyDescriptor(target.prototype, key);
+        // Do not decorate constructor.
         if (descriptor && !isConstructor(descriptor.value)) {
           descriptor = cacheDecorator(options)(descriptor);
           Object.defineProperty(target.prototype, key, descriptor);
