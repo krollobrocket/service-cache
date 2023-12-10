@@ -1,6 +1,6 @@
 {
   "name": "@cyclonecode/service-cache",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Cache responses from service calls in nestjs.",
   "keywords": [
     "nestjs",
